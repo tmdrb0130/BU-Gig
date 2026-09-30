@@ -1,0 +1,355 @@
+{
+  "pack": "Baekseok Gig Startup platform image assets",
+  "date": "2026-09-30",
+  "source": "Cropped from the user-approved mockup screenshots in this conversation.",
+  "production_notice": "These are prototype/demo crops. For production, replace the university logo and any photographic content with original high-resolution, licensed/official source files. User portfolio/project images should be uploaded dynamically.",
+  "assets": [
+    {
+      "file": "brand/logo-header.png",
+      "webp": "webp/brand/logo-header.webp",
+      "pixels": {
+        "width": 141,
+        "height": 34
+      },
+      "usage": "Desktop header wordmark/logo",
+      "recommended_css": "height: 28-32px",
+      "notes": "Prototype crop from approved mockup; replace with official vector logo before production."
+    },
+    {
+      "file": "brand/logo-mark.png",
+      "webp": "webp/brand/logo-mark.webp",
+      "pixels": {
+        "width": 41,
+        "height": 34
+      },
+      "usage": "Favicon / compact mobile logo",
+      "recommended_css": "32x32 or 40x40",
+      "notes": "Prototype crop; use official university mark for production."
+    },
+    {
+      "file": "brand/footer-campus-illustration.png",
+      "webp": "webp/brand/footer-campus-illustration.webp",
+      "pixels": {
+        "width": 272,
+        "height": 110
+      },
+      "usage": "Footer decorative campus illustration",
+      "recommended_css": "max-width: 320px",
+      "notes": "Decorative only; keep text in HTML, not inside image where possible."
+    },
+    {
+      "file": "home/hero-collage.png",
+      "webp": "webp/home/hero-collage.webp",
+      "pixels": {
+        "width": 468,
+        "height": 238
+      },
+      "usage": "Homepage hero right-side visual collage",
+      "recommended_css": "width: 46-50% of hero; object-fit: contain",
+      "notes": "Contains the visual composition from current final mockup."
+    },
+    {
+      "file": "home/promo-collage.png",
+      "webp": "webp/home/promo-collage.webp",
+      "pixels": {
+        "width": 572,
+        "height": 218
+      },
+      "usage": "Mid-page promotional banner visual",
+      "recommended_css": "width: 55-60%; object-fit: contain",
+      "notes": "Use with HTML headline/button on the left."
+    },
+    {
+      "file": "portfolio/campus-brand-design.png",
+      "webp": "webp/portfolio/campus-brand-design.webp",
+      "pixels": {
+        "width": 194,
+        "height": 129
+      },
+      "usage": "Campus brand redesign thumbnail",
+      "recommended_css": "aspect-ratio: 4/3 or 16/9; object-fit: cover",
+      "notes": "Seed/demo content image; replace with user-uploaded portfolio images in live service."
+    },
+    {
+      "file": "portfolio/campus-video-edit.png",
+      "webp": "webp/portfolio/campus-video-edit.webp",
+      "pixels": {
+        "width": 195,
+        "height": 129
+      },
+      "usage": "Campus promotional video thumbnail",
+      "recommended_css": "aspect-ratio: 4/3 or 16/9; object-fit: cover",
+      "notes": "Seed/demo content image; replace with user-uploaded portfolio images in live service."
+    },
+    {
+      "file": "portfolio/student-app-uiux.png",
+      "webp": "webp/portfolio/student-app-uiux.webp",
+      "pixels": {
+        "width": 195,
+        "height": 129
+      },
+      "usage": "Student app UI/UX thumbnail",
+      "recommended_css": "aspect-ratio: 4/3 or 16/9; object-fit: cover",
+      "notes": "Seed/demo content image; replace with user-uploaded portfolio images in live service."
+    },
+    {
+      "file": "portfolio/baekseok-festa-poster.png",
+      "webp": "webp/portfolio/baekseok-festa-poster.webp",
+      "pixels": {
+        "width": 195,
+        "height": 129
+      },
+      "usage": "Festival poster thumbnail",
+      "recommended_css": "aspect-ratio: 4/3 or 16/9; object-fit: cover",
+      "notes": "Seed/demo content image; replace with user-uploaded portfolio images in live service."
+    },
+    {
+      "file": "portfolio/expert-branding.png",
+      "webp": "webp/portfolio/expert-branding.webp",
+      "pixels": {
+        "width": 161,
+        "height": 90
+      },
+      "usage": "Brand design portfolio thumbnail",
+      "recommended_css": "aspect-ratio: 4/3 or 16/9; object-fit: cover",
+      "notes": "Seed/demo content image; replace with user-uploaded portfolio images in live service."
+    },
+    {
+      "file": "portfolio/expert-video.png",
+      "webp": "webp/portfolio/expert-video.webp",
+      "pixels": {
+        "width": 161,
+        "height": 90
+      },
+      "usage": "Video production portfolio thumbnail",
+      "recommended_css": "aspect-ratio: 4/3 or 16/9; object-fit: cover",
+      "notes": "Seed/demo content image; replace with user-uploaded portfolio images in live service."
+    },
+    {
+      "file": "portfolio/expert-uiux.png",
+      "webp": "webp/portfolio/expert-uiux.webp",
+      "pixels": {
+        "width": 161,
+        "height": 90
+      },
+      "usage": "UI/UX portfolio thumbnail",
+      "recommended_css": "aspect-ratio: 4/3 or 16/9; object-fit: cover",
+      "notes": "Seed/demo content image; replace with user-uploaded portfolio images in live service."
+    },
+    {
+      "file": "portfolio/expert-translation.png",
+      "webp": "webp/portfolio/expert-translation.webp",
+      "pixels": {
+        "width": 161,
+        "height": 90
+      },
+      "usage": "Translation/document portfolio thumbnail",
+      "recommended_css": "aspect-ratio: 4/3 or 16/9; object-fit: cover",
+      "notes": "Seed/demo content image; replace with user-uploaded portfolio images in live service."
+    },
+    {
+      "file": "portfolio/expert-event.png",
+      "webp": "webp/portfolio/expert-event.webp",
+      "pixels": {
+        "width": 161,
+        "height": 90
+      },
+      "usage": "Event planning portfolio thumbnail",
+      "recommended_css": "aspect-ratio: 4/3 or 16/9; object-fit: cover",
+      "notes": "Seed/demo content image; replace with user-uploaded portfolio images in live service."
+    },
+    {
+      "file": "projects/festa-poster-design.png",
+      "webp": "webp/projects/festa-poster-design.webp",
+      "pixels": {
+        "width": 320,
+        "height": 275
+      },
+      "usage": "Project list/detail sample thumbnail for poster design",
+      "recommended_css": "aspect-ratio: 4/3; object-fit: cover",
+      "notes": "Higher-resolution crop from approved project-card mockup."
+    },
+    {
+      "file": "projects/webpage-development.png",
+      "webp": "webp/projects/webpage-development.webp",
+      "pixels": {
+        "width": 177,
+        "height": 105
+      },
+      "usage": "Webpage development project thumbnail",
+      "recommended_css": "aspect-ratio: 4/3; object-fit: cover",
+      "notes": "Seed/demo project image. Project image should remain optional in the product."
+    },
+    {
+      "file": "projects/video-editing.png",
+      "webp": "webp/projects/video-editing.webp",
+      "pixels": {
+        "width": 177,
+        "height": 99
+      },
+      "usage": "Video editing project thumbnail",
+      "recommended_css": "aspect-ratio: 4/3; object-fit: cover",
+      "notes": "Seed/demo project image. Project image should remain optional in the product."
+    },
+    {
+      "file": "projects/brand-logo-design.png",
+      "webp": "webp/projects/brand-logo-design.webp",
+      "pixels": {
+        "width": 177,
+        "height": 114
+      },
+      "usage": "Brand/logo design project thumbnail",
+      "recommended_css": "aspect-ratio: 4/3; object-fit: cover",
+      "notes": "Seed/demo project image. Project image should remain optional in the product."
+    },
+    {
+      "file": "portfolio/expert-brand-card.png",
+      "webp": "webp/portfolio/expert-brand-card.webp",
+      "pixels": {
+        "width": 179,
+        "height": 111
+      },
+      "usage": "Expert card representative work: branding",
+      "recommended_css": "aspect-ratio: 4/3; object-fit: cover",
+      "notes": "Expert card uses representative work image rather than requiring a profile photo."
+    },
+    {
+      "file": "portfolio/expert-uiux-card.png",
+      "webp": "webp/portfolio/expert-uiux-card.webp",
+      "pixels": {
+        "width": 179,
+        "height": 107
+      },
+      "usage": "Expert card representative work: UI/UX",
+      "recommended_css": "aspect-ratio: 4/3; object-fit: cover",
+      "notes": "Expert card uses representative work image rather than requiring a profile photo."
+    },
+    {
+      "file": "portfolio/expert-video-card.png",
+      "webp": "webp/portfolio/expert-video-card.webp",
+      "pixels": {
+        "width": 179,
+        "height": 100
+      },
+      "usage": "Expert card representative work: video",
+      "recommended_css": "aspect-ratio: 4/3; object-fit: cover",
+      "notes": "Expert card uses representative work image rather than requiring a profile photo."
+    },
+    {
+      "file": "portfolio/expert-translation-card.png",
+      "webp": "webp/portfolio/expert-translation-card.webp",
+      "pixels": {
+        "width": 179,
+        "height": 113
+      },
+      "usage": "Expert card representative work: translation",
+      "recommended_css": "aspect-ratio: 4/3; object-fit: cover",
+      "notes": "Expert card uses representative work image rather than requiring a profile photo."
+    },
+    {
+      "file": "demo/avatars/review-01.png",
+      "webp": "webp/demo/avatars/review-01.webp",
+      "pixels": {
+        "width": 32,
+        "height": 32
+      },
+      "usage": "Demo review avatar 1",
+      "recommended_css": "32-40px circle",
+      "notes": "Demo-only. Live service should use user profile uploads or initials/default avatar."
+    },
+    {
+      "file": "demo/avatars/review-02.png",
+      "webp": "webp/demo/avatars/review-02.webp",
+      "pixels": {
+        "width": 32,
+        "height": 32
+      },
+      "usage": "Demo review avatar 2",
+      "recommended_css": "32-40px circle",
+      "notes": "Demo-only. Live service should use user profile uploads or initials/default avatar."
+    },
+    {
+      "file": "demo/avatars/review-03.png",
+      "webp": "webp/demo/avatars/review-03.webp",
+      "pixels": {
+        "width": 32,
+        "height": 32
+      },
+      "usage": "Demo review avatar 3",
+      "recommended_css": "32-40px circle",
+      "notes": "Demo-only. Live service should use user profile uploads or initials/default avatar."
+    },
+    {
+      "file": "demo/avatars/review-04.png",
+      "webp": "webp/demo/avatars/review-04.webp",
+      "pixels": {
+        "width": 32,
+        "height": 32
+      },
+      "usage": "Demo review avatar 4",
+      "recommended_css": "32-40px circle",
+      "notes": "Demo-only. Live service should use user profile uploads or initials/default avatar."
+    },
+    {
+      "file": "demo/avatars/expert-01.png",
+      "webp": "webp/demo/avatars/expert-01.webp",
+      "pixels": {
+        "width": 42,
+        "height": 42
+      },
+      "usage": "Demo expert avatar 1",
+      "recommended_css": "32-40px circle",
+      "notes": "Demo-only. Live service should use user profile uploads or initials/default avatar."
+    },
+    {
+      "file": "demo/avatars/expert-02.png",
+      "webp": "webp/demo/avatars/expert-02.webp",
+      "pixels": {
+        "width": 42,
+        "height": 42
+      },
+      "usage": "Demo expert avatar 2",
+      "recommended_css": "32-40px circle",
+      "notes": "Demo-only. Live service should use user profile uploads or initials/default avatar."
+    },
+    {
+      "file": "demo/avatars/expert-03.png",
+      "webp": "webp/demo/avatars/expert-03.webp",
+      "pixels": {
+        "width": 42,
+        "height": 42
+      },
+      "usage": "Demo expert avatar 3",
+      "recommended_css": "32-40px circle",
+      "notes": "Demo-only. Live service should use user profile uploads or initials/default avatar."
+    },
+    {
+      "file": "demo/avatars/expert-04.png",
+      "webp": "webp/demo/avatars/expert-04.webp",
+      "pixels": {
+        "width": 42,
+        "height": 42
+      },
+      "usage": "Demo expert avatar 4",
+      "recommended_css": "32-40px circle",
+      "notes": "Demo-only. Live service should use user profile uploads or initials/default avatar."
+    },
+    {
+      "file": "home/search-helper-illustration.png",
+      "webp": "webp/home/search-helper-illustration.webp",
+      "pixels": {
+        "width": 276,
+        "height": 144
+      },
+      "usage": "Optional desktop sidebar helper illustration",
+      "recommended_css": "width: 100%; max-width: 280px",
+      "notes": "Optional decorative asset; can be omitted on mobile."
+    }
+  ],
+  "implementation_notes": [
+    "Category/filter icons should be implemented as SVG/icon components (e.g. Lucide), not raster images.",
+    "Project representative image is optional. When absent, use a CSS/category placeholder rather than forcing the requester to upload an image.",
+    "Expert list cards should prioritize representative portfolio work; profile photo is optional.",
+    "Keep headings, labels and CTA text as HTML for accessibility/responsiveness rather than baking them into images."
+  ]
+}

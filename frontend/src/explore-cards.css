@@ -1,0 +1,108 @@
+/* Shared list-card frame. Home compact cards keep their own layout. */
+.result-list {
+  --list-card-height: 168px;
+  --list-image-width: 132px;
+  --list-image-height: 126px;
+  --list-card-padding: 13px;
+  --list-card-gap: 16px;
+}
+.result-list .list-card {
+  min-height: var(--list-card-height);
+  padding: var(--list-card-padding);
+  gap: var(--list-card-gap);
+  border-radius: 12px;
+  align-items: center;
+  align-content: center;
+}
+.result-list .list-card .project-image,
+.result-list .expert-card.list-card .expert-image {
+  width: var(--list-image-width);
+  height: var(--list-image-height);
+  min-height: 0;
+  flex-shrink: 0;
+  align-self: center;
+  border-radius: 8px;
+  overflow: hidden;
+}
+.result-list .list-card .project-image img,
+.result-list .list-card .expert-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.result-list .list-card .category-placeholder { min-height: 0; }
+.result-list .list-card .expert-info { padding: 0 120px 0 0; }
+.result-list .list-card > .save { top: 10px; right: 12px; width: 36px; height: 36px; }
+.result-list .list-card .expert-title { margin-top: 5px; }
+.result-list .list-card .expert-title h3 { font-size: 16px; }
+.result-list .list-card .expert-info > p { margin: 5px 0 7px; font-size: 12px; }
+.result-list .list-card .expert-stats { margin-top: 6px; font-size: 11px; flex-wrap: wrap; gap: 8px 12px; }
+.result-list .list-card .expert-stats > .verified { color: #078966; background: #e9faf4; padding: 4px 8px; border-radius: 20px; font-size: 10px; }
+.result-list .list-card .expert-stats > span:first-child svg { color: var(--blue); }
+.result-list .list-card .expert-stats > .verified { display: inline-flex; }
+.result-list .list-card .expert-bottom { margin: 0; }
+.result-list .list-card .expert-bottom > .btn,
+.result-list .list-card .project-owner > .btn {
+  position: absolute;
+  right: var(--list-card-padding);
+  bottom: 22px;
+  min-height: 40px;
+  min-width: 105px;
+  padding: 0 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  margin: 0;
+}
+.result-list .list-card .project-side { width: 265px; padding: 32px 0 12px 16px; justify-content: space-between; }
+.result-list .list-card .project-numbers { gap: 9px; }
+.result-list .list-card .project-owner { margin-top: 12px; padding-right: 112px; min-height: 40px; }
+.result-list .list-card .project-owner > span { flex-wrap: wrap; gap: 4px; }
+.save-symbol, .save-feedback { display: inline-flex; position: relative; pointer-events: none; }
+.save-feedback { animation: save-pop 360ms ease-out; }
+.saved .save-feedback::after {
+  content: ""; position: absolute; inset: -5px; border: 2px solid currentColor;
+  border-radius: 50%; opacity: 0; animation: save-ring 420ms ease-out;
+}
+@keyframes save-pop { 0% { transform: scale(.8); } 45% { transform: scale(1.22); } 100% { transform: scale(1); } }
+@keyframes save-ring { 0% { transform: scale(.5); opacity: .5; } 100% { transform: scale(1.35); opacity: 0; } }
+@media (max-width: 1050px) {
+  .result-list {
+    --list-card-height: 220px;
+    --list-card-gap: 12px;
+  }
+  .result-list .list-card .expert-info { padding-right: 28px; }
+  .result-list .list-card .expert-stats { padding-right: 85px; }
+  .result-list .list-card .expert-stats > span:nth-child(3) { display: none; }
+  .result-list .list-card .project-side { width: 100%; padding: 10px 115px 0 0; min-height: 50px; }
+  .result-list .list-card .project-owner > .btn { display: flex; }
+  .result-list .list-card .project-owner { display: contents; }
+  .result-list .list-card .project-owner > span { display: none; }
+  .result-list .list-card .expert-bottom > .btn,
+  .result-list .list-card .project-owner > .btn { bottom: 13px; }
+}
+@media (max-width: 767px) {
+  .result-list {
+    --list-card-height: 232px;
+    --list-image-width: 87px;
+    --list-image-height: 112px;
+    --list-card-padding: 12px;
+  }
+  .result-list .list-card .expert-info { padding: 0 0 40px; }
+  .result-list .list-card .project-info { padding-right: 0; }
+  .result-list .list-card .expert-title h3 { font-size: 14px; }
+  .result-list .list-card .expert-info > p { font-size: 11px; }
+  .result-list .list-card .expert-stats { padding: 0; gap: 6px; font-size: 10px; margin-top: 8px; }
+  .result-list .list-card .expert-stats > .verified { position: absolute; left: 12px; bottom: 20px; }
+  .result-list .list-card .expert-bottom > .btn,
+  .result-list .list-card .project-owner > .btn { bottom: 12px; min-width: 90px; font-size: 11px; }
+  .result-list .list-card .project-side { padding-right: 100px; }
+  .result-list .list-card .project-numbers { flex-wrap: wrap; gap: 5px 8px; }
+  .result-list .list-card .project-numbers strong { font-size: 12px; }
+}
+@media (max-width: 360px) {
+  /* Long project titles and wrapped tags need a little more room on small phones. */
+  .result-list { --list-card-height: 250px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .save-feedback, .saved .save-feedback::after { animation: none; }
+}
