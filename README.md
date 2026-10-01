@@ -2,7 +2,17 @@
 
 `docs`의 2026-09-30 기능 명세·디자인 가이드와 `frontend/sample` 시안을 바탕으로 구현한 React 프론트엔드입니다. `frontend/image/baekseok_gig_assets_20260930/webp`의 제공 이미지를 사용합니다.
 
-## 실행
+## 백엔드 실행
+
+설계 문서를 기반으로 NestJS·TypeScript·PostgreSQL API와 Worker를 구현했습니다. [백엔드 README](backend/README.md)에 실행·테스트·배포 방법과 검증 범위를 정리했습니다. 현재 프론트엔드는 localStorage 데모를 유지하며 서버 API 연결은 별도 작업입니다.
+
+```sh
+cd backend
+npm ci
+npm run dev
+```
+
+## 프론트엔드 실행
 
 ```sh
 cd frontend
@@ -61,7 +71,7 @@ E2E 테스트는 설치된 Microsoft Edge를 사용합니다. 다른 환경에�
 ## 구조
 
 - `frontend/`: React 소스, 이미지·시안, 테스트, npm 및 Vite 설정
-- `backend/`: 백엔드 구현을 위한 빈 폴더 (Git 추적용 `.gitkeep` 포함)
+- `backend/`: NestJS·TypeScript·PostgreSQL API, Worker, 마이그레이션 및 통합 테스트 ([실행 안내](backend/README.md))
 - `docs/`: 공통 기능 명세, 디자인 가이드 및 API 설계
 
 

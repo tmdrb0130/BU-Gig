@@ -1,0 +1,16 @@
+CREATE INDEX sessions_idle_expiry ON sessions(idle_expires_at);
+CREATE INDEX sessions_absolute_expiry ON sessions(absolute_expires_at);
+CREATE INDEX sessions_user ON sessions(user_id);
+CREATE INDEX auth_tokens_expiry ON auth_tokens(expires_at);
+CREATE INDEX idempotency_expiry ON idempotency_records(expires_at);
+CREATE INDEX user_events_expiry ON user_events(created_at);
+CREATE INDEX uploads_expiry ON uploads(expires_at);
+CREATE INDEX media_owner ON media_objects(owner_id,state);
+CREATE INDEX verification_expiry ON school_verifications(expires_at) WHERE state='VERIFIED';
+CREATE INDEX direct_request_expiry ON direct_requests(expires_at) WHERE status='PENDING';
+CREATE INDEX project_deadline ON projects(closes_at) WHERE status='OPEN';
+CREATE INDEX notifications_cursor ON notifications(recipient_id,created_at DESC,id DESC);
+CREATE TRIGGER immutable_acceptance BEFORE UPDATE OR DELETE ON contract_acceptances FOR EACH ROW EXECUTE FUNCTION preserve_revision();
+CREATE TRIGGER immutable_match BEFORE UPDATE OR DELETE ON matches FOR EACH ROW EXECUTE FUNCTION preserve_revision();
+CREATE TRIGGER immutable_proposal_snapshot BEFORE UPDATE OR DELETE ON proposal_portfolio_snapshots FOR EACH ROW EXECUTE FUNCTION preserve_revision();
+CREATE TRIGGER immutable_contract_delete BEFORE DELETE ON contract_versions FOR EACH ROW EXECUTE FUNCTION preserve_revision();

@@ -1,0 +1,66 @@
+# Local integration environment. Hosted deployments use managed private S3,
+# SMTP and clamd and APP_ENV=staging/production instead of these dev adapters.
+x-runtime: &runtime
+  build: .
+  environment: &environment
+    APP_ENV: development
+    HOST: 0.0.0.0
+    DATABASE_URL: postgres://bu:local-development-only@postgres:5432/bu
+    PUBLIC_BASE_URL: http://127.0.0.1:3000
+    WEB_ORIGIN: http://127.0.0.1:5173
+    SESSION_SECRET: local-compose-secret-change-before-hosting-123456
+    WORKER_INLINE: "false"
+    STORAGE_DRIVER: local
+    MAIL_DRIVER: file
+    SCANNER_DRIVER: development
+  volumes:
+    - files:/app/.data
+services:
+  postgres:
+    image: postgres:17-bookworm
+    environment:
+      POSTGRES_DB: bu
+      POSTGRES_USER: bu
+      POSTGRES_PASSWORD: local-development-only
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - database:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U bu -d bu"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+  migrate:
+    <<: *runtime
+    command: ["node", "dist/migrate.js"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+  api:
+    <<: *runtime
+    ports:
+      - "127.0.0.1:3000:3000"
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:3000/api/v1/health/ready').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+  worker:
+    <<: *runtime
+    command: ["node", "dist/worker-main.js"]
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+volumes:
+  database:
+  files:
