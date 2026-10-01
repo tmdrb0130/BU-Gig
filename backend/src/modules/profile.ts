@@ -27,7 +27,11 @@ export function profile(h: Http) {
     })
     .strict();
   h.add("get", "/me/profile", "member", undefined, async (c) =>
-    one(c.q, "SELECT * FROM profiles WHERE user_id=$1", [c.user.id]),
+    one(
+      c.q,
+      "SELECT p.*, ARRAY(SELECT portfolio_id FROM featured_portfolios WHERE user_id=p.user_id ORDER BY position) AS featured_portfolio_ids FROM profiles p WHERE user_id=$1",
+      [c.user.id],
+    ),
   );
   h.add("patch", "/me/profile", "member", schema, async (c) => {
     const p = await one(
@@ -36,6 +40,13 @@ export function profile(h: Http) {
       [c.user.id],
     );
     expected(p, c.body);
+    if (c.body.visibility === "PUBLIC")
+      demand(
+        (c.body.headline ?? p.headline).trim().length > 0 &&
+          (c.body.fieldIds ?? p.field_ids).length > 0,
+        "PROFILE_INCOMPLETE",
+        422,
+      );
     if (c.body.avatarMediaId) {
       const media = await one(
         c.q,
@@ -337,7 +348,14 @@ export function profile(h: Http) {
     );
     demand(r, "NOT_FOUND", 404);
     member(await project(c.q, r.project_id), c.user.id);
-    return r;
+    return {
+      ...r,
+      portfolioVersion: await one(
+        c.q,
+        "SELECT body FROM portfolio_versions WHERE id=$1",
+        [r.portfolio_version_id],
+      ),
+    };
   });
   h.add("get", "/me/publication-requests", "member", undefined, async (c) =>
     paginated(

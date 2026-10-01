@@ -194,7 +194,18 @@ export class Worker {
             }),
           ],
         );
-        if (event.type !== "message.read")
+        const preference = await one(
+          q,
+          "SELECT messages,matching FROM notification_preferences WHERE user_id=$1",
+          [uid],
+        );
+        const optionalDisabled =
+          (event.type === "message.created" &&
+            preference?.messages === false) ||
+          ((event.type === "proposal.submitted" ||
+            event.type === "direct_request.received") &&
+            preference?.matching === false);
+        if (event.type !== "message.read" && !optionalDisabled)
           await q.query(
             "INSERT INTO notifications(id,recipient_id,event_id,type,target_ref) VALUES($1,$2,$3,$4,$5) ON CONFLICT DO NOTHING",
             [id(), uid, event.id, event.type, JSON.stringify(event.data)],
@@ -363,6 +374,7 @@ export class Worker {
   }
   async mail(job: any) {
     const payload = decrypt(job.payload.encrypted, this.config.secret);
+    const link = `${this.config.origin}/${payload.purpose === "password-resets" ? "password-reset" : "email-verification"}?token=${encodeURIComponent(payload.token)}`;
     if (this.config.env === "staging")
       demand(
         (process.env.STAGING_RECIPIENT_ALLOWLIST || "")
@@ -376,7 +388,7 @@ export class Worker {
         from: process.env.MAIL_FROM,
         to: payload.to,
         subject: payload.subject,
-        text: `${payload.purpose}\nToken: ${payload.token}\nExpires in 30 minutes.`,
+        text: `${payload.purpose}\n${link}\nExpires in 30 minutes.`,
         messageId: `<${job.id}@bu-cmong.local>`,
       });
     } else {
@@ -384,7 +396,7 @@ export class Worker {
       await mkdir(dir, { recursive: true });
       await writeFile(
         resolve(dir, `${job.id}.json`),
-        JSON.stringify(payload, null, 2),
+        JSON.stringify({ ...payload, link }, null, 2),
         { mode: 0o600 },
       );
     }

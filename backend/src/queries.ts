@@ -50,6 +50,11 @@ export async function projectDto(q: Sql, p: any) {
   };
 }
 export async function expertDto(q: Sql, p: any) {
+  const cover = await one(
+    q,
+    "SELECT v.body->'mediaIds'->>0 AS media_id FROM featured_portfolios f JOIN portfolios w ON w.id=f.portfolio_id JOIN portfolio_versions v ON v.id=w.published_version_id WHERE f.user_id=$1 AND w.visibility='PUBLIC' ORDER BY f.position LIMIT 1",
+    [p.user_id],
+  );
   const stats = await one(
     q,
     `SELECT count(*) AS n,avg(rating) AS rating FROM reviews WHERE subject_id=$1 AND subject_role='PROVIDER' AND visibility='PUBLIC'`,
@@ -72,7 +77,9 @@ export async function expertDto(q: Sql, p: any) {
     reviewCount: Number(stats.n),
     providerCompletedCount: Number(completed.n),
     responseHours: null,
-    coverUrl: null,
+    coverUrl: cover?.media_id
+      ? `/api/v1/media/${cover.media_id}/preview`
+      : null,
   };
 }
 export async function portfolioDto(q: Sql, p: any, own = false) {
@@ -112,7 +119,7 @@ export function queries(h: Http) {
     q: Sql,
     type: string,
     query: any,
-    extra?: { owner?: string },
+    extra?: { owner?: string; active?: boolean },
   ) {
     const p = page(query),
       values: any[] = [],
@@ -128,6 +135,7 @@ export function queries(h: Http) {
             : "portfolios",
       ownerColumn = type === "experts" ? "user_id" : "owner_id";
     const conditions = [`u.status='ACTIVE'`];
+    if (extra?.active) conditions.push("x.status='OPEN' AND x.closes_at>now()");
     if (extra?.owner) conditions.push(`x.${ownerColumn}=${bind(extra.owner)}`);
     else
       conditions.push(
@@ -334,12 +342,20 @@ export function queries(h: Http) {
   h.add("get", "/home", "public", undefined, async (c) => {
     const result: any = {};
     for (const type of ["projects", "experts", "portfolios"])
-      result[type] = (await list(c.q, type, { pageSize: 4 })).data;
+      result[type] = (
+        await list(
+          c.q,
+          type,
+          { pageSize: 4 },
+          type === "projects" ? { active: true } : undefined,
+        )
+      ).data;
     result.reviews = (
       await c.q.query(
-        `SELECT rating,body,created_at FROM reviews WHERE visibility='PUBLIC' ORDER BY created_at DESC LIMIT 4`,
+        `SELECT r.id,r.rating,r.body,r.created_at FROM reviews r JOIN projects p ON p.id=r.project_id JOIN users a ON a.id=r.author_id JOIN users s ON s.id=r.subject_id WHERE r.visibility='PUBLIC' AND r.home_featured_opt_in=true AND r.subject_role='PROVIDER' AND p.status='COMPLETED' AND p.visibility='PUBLIC' AND a.status='ACTIVE' AND s.status='ACTIVE' ORDER BY r.created_at DESC,r.id LIMIT 4`,
       )
     ).rows;
+    if (result.reviews.length < 3) result.reviews = [];
     result.recommendedKeywords = ["포스터", "영상 편집", "React", "PPT"];
     return result;
   });

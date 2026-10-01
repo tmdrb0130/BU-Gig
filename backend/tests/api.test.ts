@@ -7,6 +7,7 @@ import sharp from "sharp";
 import { createApp } from "../src/app";
 import { configuration } from "../src/config";
 import { Database, one } from "../src/db";
+import { emit } from "../src/policy";
 
 let runtime: Awaited<ReturnType<typeof createApp>>,
   base: string,
@@ -777,4 +778,157 @@ test("unverified users can save drafts but cannot publish", async () => {
     account.userId,
   ]);
   await account.request("GET", "/me", undefined, 401);
+});
+test("launch home uses opted-in completed public trades and removes hidden reviews", async () => {
+  const initial = await new Client().request("GET", "/home");
+  assert.deepEqual(initial.reviews, []);
+  const reviewIds: string[] = [];
+  for (let i = 0; i < 3; i++) {
+    const m = await match(),
+      vid = await sign(m),
+      r = await provider.request("GET", `/workrooms/${m.workroomId}`);
+    const request = await provider.request(
+      "POST",
+      `/workrooms/${m.workroomId}/completion-requests`,
+      { expectedVersion: r.version, signedVersionId: vid, note: "완료" },
+    );
+    await owner.request("POST", `/completion-requests/${request.id}/approve`, {
+      expectedVersion: 1,
+    });
+    const review = await owner.request(
+      "POST",
+      `/projects/${m.projectId}/reviews`,
+      {
+        rating: i + 2,
+        body: "실제 공개 완료 거래 후기",
+        homeFeaturedOptIn: true,
+      },
+    );
+    reviewIds.push(review.id);
+    const home = await new Client().request("GET", "/home");
+    assert.equal(home.reviews.length, i === 2 ? 3 : 0);
+    assert.ok(
+      home.projects.every(
+        (p: any) => p.status === "OPEN" && Date.parse(p.closesAt) > Date.now(),
+      ),
+    );
+    assert.equal(
+      (await owner.request("GET", `/projects/${m.projectId}/my-review`)).id,
+      review.id,
+    );
+  }
+  await owner.request("PATCH", `/me/reviews/${reviewIds[0]}`, {
+    visibility: "PRIVATE",
+    homeFeaturedOptIn: false,
+  });
+  assert.deepEqual((await new Client().request("GET", "/home")).reviews, []);
+  await outsider.request(
+    "PATCH",
+    `/me/reviews/${reviewIds[1]}`,
+    { visibility: "PRIVATE", homeFeaturedOptIn: false },
+    404,
+  );
+});
+test("profile publishing requires real headline and taxonomy; public configuration exposes no secrets", async () => {
+  const c = await new Client().init("profile-check");
+  const p = await c.request("GET", "/me/profile");
+  await c.request(
+    "PATCH",
+    "/me/profile",
+    { expectedVersion: p.version, visibility: "PUBLIC" },
+    422,
+  );
+  await c.request("PATCH", "/me/profile", {
+    expectedVersion: p.version,
+    visibility: "PUBLIC",
+    headline: "실제 활동 소개",
+    fieldIds: [fieldId],
+  });
+  const config = await new Client().request("GET", "/public-config");
+  assert.equal(config.registrationEnabled, true);
+  assert.ok(!("secret" in config));
+});
+test("expired verification disappears immediately and session reads do not consume login attempts", async () => {
+  const c = await new Client().init("expired-check");
+  await runtime.db.query(
+    "UPDATE school_verifications SET expires_at=now()-interval '1 second' WHERE user_id=$1",
+    [c.userId],
+  );
+  const session = await c.request("GET", "/auth/session");
+  assert.notEqual(session.verification.state, "VERIFIED");
+  const profile = await c.request("GET", "/me/profile");
+  assert.equal(
+    (await c.request("GET", `/experts/${profile.id}`)).schoolVerified,
+    false,
+  );
+  const project = await c.request("POST", "/projects", {
+    terms: terms(),
+    closesAt: new Date(Date.now() + 86400000).toISOString(),
+  });
+  await c.request(
+    "POST",
+    `/projects/${project.id}/publish`,
+    { expectedVersion: 1 },
+    403,
+  );
+  for (let i = 0; i < 61; i++) await c.request("GET", "/auth/session");
+  await c.request("POST", "/auth/login", {
+    email: "expired-check@example.test",
+    password: "Strong-password-123!",
+  });
+});
+
+test("notification preferences are private and suppress optional notices without suppressing events or essential notices", async () => {
+  await new Client().request(
+    "GET",
+    "/me/notification-preferences",
+    undefined,
+    401,
+  );
+  const member = await new Client().init("preferences-check");
+  assert.deepEqual(
+    await member.request("GET", "/me/notification-preferences"),
+    { messages: true, matching: true },
+  );
+  await member.request("PUT", "/me/notification-preferences", {
+    messages: false,
+    matching: false,
+  });
+  assert.deepEqual(
+    await member.request("GET", "/me/notification-preferences"),
+    { messages: false, matching: false },
+  );
+  assert.deepEqual(
+    await outsider.request("GET", "/me/notification-preferences"),
+    { messages: true, matching: true },
+  );
+  const aggregate = randomUUID();
+  for (const type of [
+    "message.created",
+    "proposal.submitted",
+    "contract.review_requested",
+  ])
+    await emit(runtime.db, type, aggregate, 1, [member.userId], {});
+  for (let i = 0; i < 20; i++) {
+    await runtime.worker.tick();
+    const delivered = await one(
+      runtime.db,
+      "SELECT count(*) AS n FROM user_events WHERE recipient_id=$1",
+      [member.userId],
+    );
+    if (Number(delivered.n) === 3) break;
+  }
+  const notices = await runtime.db.query(
+    "SELECT type FROM notifications WHERE recipient_id=$1",
+    [member.userId],
+  );
+  assert.deepEqual(
+    notices.rows.map((r) => r.type),
+    ["contract.review_requested"],
+  );
+  const events = await runtime.db.query(
+    "SELECT type FROM user_events WHERE recipient_id=$1",
+    [member.userId],
+  );
+  assert.equal(events.rows.length, 3);
 });

@@ -110,6 +110,15 @@ export async function canReadMedia(q: Sql, mediaId: string, user: any) {
         if ([r.applicant_id, r.owner_id].includes(user?.id)) return m;
       }
       if (link.target_type === "PORTFOLIO_VERSION") {
+        if (
+          user?.id &&
+          (await one(
+            q,
+            `SELECT a.id FROM publication_approvals a JOIN projects p ON p.id=a.project_id WHERE a.portfolio_version_id=$1 AND (p.owner_id=$2 OR a.requester_id=$2) AND a.state IN ('PENDING_APPROVAL','APPROVED')`,
+            [link.target_id, user.id],
+          ))
+        )
+          return m;
         // Public access only serves re-encoded images. Originals are never made public by association.
         if (
           m.mime.startsWith("image/") &&

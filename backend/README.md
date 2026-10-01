@@ -1,6 +1,6 @@
 # BU CMONG 백엔드
 
-2026-10-01 기준. `docs/01`~`09`와 현재 프론트엔드를 대조해 구현한 **NestJS + TypeScript + PostgreSQL API**다. 회원·학교 인증 심사, 공개 탐색, 의뢰·지원·지정 요청, 워크룸, 계약, 완료·취소, 후기, 파일, 알림, 운영 API를 제공한다. 기존 프론트엔드는 아직 localStorage 데모이며 이 서버에 자동 연결되지 않는다.
+2026-10-01 기준. `docs/01`~`09`와 현재 프론트엔드를 대조해 구현한 **NestJS + TypeScript + PostgreSQL API**다. 회원·학교 인증 심사, 공개 탐색, 의뢰·지원·지정 요청, 워크룸, 계약, 완료·취소, 후기, 파일, 알림, 운영 API를 제공한다. 현재 프론트엔드의 기본 진입점 `frontend/src/live/App.jsx`는 이 API에 연결된다. [루트 README](../README.md)에 운영 노출 정책과 첫 거래 흐름을 정리했다.
 
 ## 바로 실행
 
@@ -166,6 +166,21 @@ TLS reverse proxy는 `/api/v1/events`의 buffering을 끄고 장시간 연결을
 - 포트폴리오는 제목·요약·역할·분야·미디어 및 고정 버전/공개 승인까지만 구현했다. 문서 D-08의 디자인 미확정 편집 블록은 추가하지 않았다.
 - OpenAPI는 전체 라우트·요청 검증·권한·멱등 헤더를 포함한다. 응답은 공통 envelope 수준이므로 프론트 타입 자동 생성에 필요한 operation별 상세 response schema는 후속 보완 대상이다. 통합 테스트가 핵심 실제 응답 흐름을 검증한다.
 - 공개 탐색은 SQL pagination/filter를 사용한다. 일부 개인·운영 목록과 워크룸 파일은 권한으로 범위를 좁힌 뒤 메모리에서 페이지를 자르므로 대량 데이터 성능 튜닝이 필요하다.
-- 현재 API는 결제·정산을 제공하지 않는다. 실제 계정 제재 UI, 운영자 배정 workflow, 영구 보관/파기 정책, 자동 배포 인프라 및 프론트의 실제 API 전환은 이 서버 구현과 별도다.
+- 현재 API는 결제·정산을 제공하지 않는다. 실제 계정 제재 UI, 운영자 배정 workflow, 영구 보관/파기 정책, 자동 배포 인프라는 별도다. 핵심 회원·거래 프론트는 API에 연결했으며 운영 관리 UI는 인증 심사·문의 답변·신고 처리·작업 재시도·감사 조회를 제공한다.
+
+## 샘플 화면 복원 지원
+
+- Migration 005는 `notification_preferences`를 추가한다. `GET/PUT /me/notification-preferences`는 현재 계정의 메시지·매칭 알림 설정만 조회/변경한다. Worker는 선택 알림만 생략하고 SSE 이벤트와 필수 알림은 유지한다.
+- 지원서 조회는 지원자 공개 요약과 권한 확인된 첨부 목록을 제공한다. 전문가 카드 이미지는 실제 공개 대표 작업물에서 가져온다.
+- 대화 목록은 프로젝트 제목·워크룸 연결을, 메시지 조회는 첨부 ID를 반환한다. 기존 당사자 권한 검사를 유지한다.
+
+## 출시 화면 연동 변경
+
+- Migration 004는 후기의 홈 노출 선택 동의를 추가하며 기본값은 false다. 공개 완료 거래·활성 계정·공개 후기·홈 노출 동의 조건을 만족하는 거래가 3건 이상일 때만 홈 후기 목록을 반환한다. 개인 프로필의 평점·후기 집계와 홈 큐레이션 조건은 구분한다.
+- `GET /public-config`는 공개 정책 URL/버전과 설정된 OAuth 공급자만 반환한다. hosted 신규 가입에는 `TERMS_URL`, `PRIVACY_URL`의 HTTPS 주소와 `TERMS_VERSION`, `PRIVACY_VERSION`이 필요하다. 비밀키는 반환하지 않는다.
+- `GET /projects/:id/my-review`, `PATCH /me/reviews/:id`로 본인 후기 확인과 공개 철회를 제공한다. 프로필을 PUBLIC으로 설정할 때 소개와 활동 분야를 검증한다.
+- 세션 인증 상태는 만료 시간을 즉시 반영한다. 세션/CSRF 조회는 일반 요청 제한을 사용하고 로그인·가입 등 민감 인증 요청은 별도 60회/분 제한을 유지한다.
+- 메일 Worker에 실제 프론트의 비밀번호 재설정·이메일 확인 링크를 포함한다. 개발 메일은 파일이며 실제 발송은 하지 않는다.
+- `tests/serve-release.ts`는 브라우저 테스트 전용 메모리 DB 서버다. 운영 진입점에서 실행하지 않으며 별도 환경 플래그가 필요하다.
 
 기술 참고: [NestJS](https://docs.nestjs.com/), [node-postgres 트랜잭션](https://node-postgres.com/features/transactions), [PGlite](https://pglite.dev/docs/), [카카오 REST API](https://developers.kakao.com/docs/latest/ko/kakaologin/rest-api), [네이버 로그인 API](https://developers.naver.com/docs/login/api/api.md).

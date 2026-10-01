@@ -4,6 +4,7 @@ import { Http, Context } from "../http";
 import { one } from "../db";
 import { demand, hash, id, text } from "../shared";
 import { createAccount, checkPassword } from "./identity";
+import { publicConfig, validateConsents } from "../public-config";
 export function oauth(h: Http) {
   const providers = {
     kakao: {
@@ -180,7 +181,14 @@ export function oauth(h: Http) {
           demand(!uid || uid === token.user_id, "IDENTITY_ALREADY_LINKED");
           uid = token.user_id;
         }
-        if (!uid) uid = await createAccount(q, null, "새 회원", null);
+        if (!uid) {
+          demand(
+            publicConfig(h.config).registrationEnabled,
+            "REGISTRATION_NOT_READY",
+            503,
+          );
+          uid = await createAccount(q, null, "새 회원", null);
+        }
         demand(
           (await one(q, "SELECT status FROM users WHERE id=$1", [uid]))
             ?.status === "ACTIVE",
@@ -258,6 +266,10 @@ export function oauth(h: Http) {
     "member",
     z.object({ termsVersion: text(40), privacyVersion: text(40) }).strict(),
     async (c) => {
+      validateConsents(h.config, [
+        { type: "TERMS", version: c.body.termsVersion },
+        { type: "PRIVACY", version: c.body.privacyVersion },
+      ]);
       for (const [type, version] of [
         ["TERMS", c.body.termsVersion],
         ["PRIVACY", c.body.privacyVersion],

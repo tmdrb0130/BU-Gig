@@ -21,6 +21,7 @@ import { events } from "./modules/events";
 import { oauth } from "./modules/oauth";
 import { queries } from "./queries";
 import { seedTaxonomy } from "./taxonomy";
+import { publicConfig } from "./public-config";
 @Module({})
 class BackendModule {}
 export async function createApp(
@@ -68,6 +69,9 @@ export async function createApp(
   media(http, storage);
   const closeEvents = events(http);
   queries(http);
+  http.add("get", "/public-config", "public", undefined, async () =>
+    publicConfig(config),
+  );
   http.add("get", "/openapi.json", "public", undefined, async (c) => {
     c.res.json(http.openapi());
     return null;

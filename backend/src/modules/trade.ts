@@ -24,6 +24,37 @@ import {
 } from "../policy";
 import { linkOwned, createConversation } from "./matching";
 export function trade(h: Http) {
+  h.add("get", "/projects/:id/my-review", "member", undefined, async (c) => {
+    const p = await project(c.q, c.params.id);
+    member(p, c.user.id);
+    return (
+      (await one(
+        c.q,
+        "SELECT * FROM reviews WHERE project_id=$1 AND author_id=$2",
+        [p.id, c.user.id],
+      )) || null
+    );
+  });
+  h.add(
+    "patch",
+    "/me/reviews/:id",
+    "member",
+    z
+      .object({
+        visibility: z.enum(["PUBLIC", "PRIVATE"]),
+        homeFeaturedOptIn: z.boolean(),
+      })
+      .strict(),
+    async (c) => {
+      const r = await one(
+        c.q,
+        "UPDATE reviews SET visibility=$3,home_featured_opt_in=$4 WHERE id=$1 AND author_id=$2 RETURNING id",
+        [c.params.id, c.user.id, c.body.visibility, c.body.homeFeaturedOptIn],
+      );
+      demand(r, "NOT_FOUND", 404);
+      return r;
+    },
+  );
   h.add("get", "/workrooms/:id", "member", undefined, async (c) => {
     const r = await room(c.q, c.params.id, c.user.id),
       contract = await one(
@@ -128,7 +159,7 @@ export function trade(h: Http) {
   h.add("get", "/conversations", "member", undefined, async (c) => ({
     data: (
       await c.q.query(
-        "SELECT c.*,m.last_read_sequence FROM conversations c JOIN conversation_members m ON c.id=m.conversation_id WHERE m.user_id=$1 ORDER BY c.id",
+        "SELECT c.*,m.last_read_sequence,coalesce(p.terms->>'title',t.terms->>'title') AS title,w.id AS workroom_id FROM conversations c JOIN conversation_members m ON c.id=m.conversation_id LEFT JOIN projects p ON p.id=c.project_id LEFT JOIN direct_requests d ON d.id=c.direct_request_id LEFT JOIN direct_request_terms t ON t.id=d.latest_terms_id LEFT JOIN workrooms w ON w.conversation_id=c.id WHERE m.user_id=$1 ORDER BY c.id",
         [c.user.id],
       )
     ).rows,
@@ -149,7 +180,7 @@ export function trade(h: Http) {
         .parse(c.query.cursor);
       const rows = (
         await c.q.query(
-          "SELECT * FROM messages WHERE conversation_id=$1 AND sequence>$2 ORDER BY sequence LIMIT 51",
+          "SELECT m.*,ARRAY(SELECT media_id FROM media_links WHERE target_type='MESSAGE' AND target_id=m.id) AS media_ids FROM messages m WHERE conversation_id=$1 AND sequence>$2 ORDER BY sequence LIMIT 51",
           [c.params.id, after],
         )
       ).rows;
@@ -675,7 +706,11 @@ export function trade(h: Http) {
     "/projects/:id/reviews",
     "member",
     z
-      .object({ rating: z.number().int().min(1).max(5), body: text(2000) })
+      .object({
+        rating: z.number().int().min(1).max(5),
+        body: text(2000),
+        homeFeaturedOptIn: z.boolean().default(false),
+      })
       .strict(),
     async (c) => {
       const p = await project(c.q, c.params.id, c.user.id, true);
@@ -684,7 +719,7 @@ export function trade(h: Http) {
       const rid = id(),
         subject = p.owner_id === c.user.id ? p.provider_id : p.owner_id;
       await c.q.query(
-        "INSERT INTO reviews(id,project_id,author_id,subject_id,subject_role,rating,body) VALUES($1,$2,$3,$4,$5,$6,$7)",
+        "INSERT INTO reviews(id,project_id,author_id,subject_id,subject_role,rating,body,home_featured_opt_in) VALUES($1,$2,$3,$4,$5,$6,$7,$8)",
         [
           rid,
           p.id,
@@ -693,6 +728,7 @@ export function trade(h: Http) {
           p.owner_id === c.user.id ? "PROVIDER" : "REQUESTER",
           c.body.rating,
           c.body.body,
+          c.body.homeFeaturedOptIn,
         ],
       );
       await emit(c.q, "review.created", rid, 1, [subject], {

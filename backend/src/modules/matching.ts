@@ -15,6 +15,7 @@ import {
   paginated,
 } from "../shared";
 import { project, owner, visibleProject, emit } from "../policy";
+import { summary } from "../queries";
 export async function validateTerms(q: Sql, body: any) {
   const terms = termsSchema.parse(body);
   demand(
@@ -478,7 +479,7 @@ export function matching(h: Http) {
   h.add("get", "/projects/:id/proposals", "member", undefined, async (c) => {
     const p = await project(c.q, c.params.id);
     owner(p, c.user.id);
-    return paginated(
+    const result = paginated(
       (
         await c.q.query(
           "SELECT p.*,r.amount,r.days,r.content FROM proposals p JOIN proposal_revisions r ON r.id=p.current_revision_id WHERE p.project_id=$1 ORDER BY p.created_at DESC,p.id",
@@ -487,6 +488,15 @@ export function matching(h: Http) {
       ).rows,
       c.query,
     );
+    return {
+      ...result,
+      data: await Promise.all(
+        result.data.map(async (a: any) => ({
+          ...a,
+          applicant: await summary(c.q, a.applicant_id),
+        })),
+      ),
+    };
   });
   const ownProposal = async (c: Context, lock = false) => {
     const raw = await one(c.q, "SELECT * FROM proposals WHERE id=$1", [
@@ -510,6 +520,13 @@ export function matching(h: Http) {
     const { proposal } = await ownProposal(c);
     return {
       ...proposal,
+      applicant: await summary(c.q, proposal.applicant_id),
+      attachments: (
+        await c.q.query(
+          "SELECT m.id AS media_id,m.filename AS name FROM media_links l JOIN media_objects m ON m.id=l.media_id WHERE l.target_type='PROPOSAL_REVISION' AND l.target_id=$1 AND m.state='READY'",
+          [proposal.current_revision_id],
+        )
+      ).rows,
       revisions: (
         await c.q.query(
           "SELECT * FROM proposal_revisions WHERE proposal_id=$1 ORDER BY revision_no",

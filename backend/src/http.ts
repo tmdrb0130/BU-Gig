@@ -87,7 +87,10 @@ export class Http {
   mount() {
     const buckets = new Map<string, { count: number; until: number }>();
     this.router.use((req, res, next) => {
-      const key = `${req.ip}:${req.path.startsWith("/auth") ? "auth" : "api"}`,
+      const sensitiveAuth =
+        req.path.startsWith("/auth") &&
+        !["/auth/session", "/auth/csrf"].includes(req.path);
+      const key = `${req.ip}:${sensitiveAuth ? "auth" : "api"}`,
         now = Date.now();
       if (buckets.size > 10000)
         for (const [k, v] of buckets) if (v.until < now) buckets.delete(k);
@@ -96,7 +99,7 @@ export class Http {
         bucket = { count: 0, until: now + 60000 };
         buckets.set(key, bucket);
       }
-      if (++bucket.count > (req.path.startsWith("/auth") ? 60 : 600)) {
+      if (++bucket.count > (sensitiveAuth ? 60 : 600)) {
         res.setHeader("Retry-After", "60");
         return res.status(429).json({
           error: {

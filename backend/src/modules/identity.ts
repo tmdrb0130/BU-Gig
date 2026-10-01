@@ -9,6 +9,7 @@ import { z } from "zod";
 import { Http, Context } from "../http";
 import { Sql, one } from "../db";
 import { hash, id, text, demand, secureEqual } from "../shared";
+import { validateConsents } from "../public-config";
 const scrypt = promisify(scryptCb);
 export async function passwordHash(password: string) {
   const salt = randomBytes(16).toString("hex");
@@ -125,6 +126,7 @@ export function identity(h: Http) {
       })
       .strict(),
     async (c) => {
+      validateConsents(h.config, c.body.consents);
       demand(
         new Set(c.body.consents.map((x: any) => x.type)).size === 2,
         "CONSENT_REQUIRED",
@@ -179,7 +181,7 @@ export function identity(h: Http) {
     );
     const verification = await one(
       c.q,
-      `SELECT state,expires_at FROM school_verifications WHERE user_id=$1 ORDER BY created_at DESC LIMIT 1`,
+      `SELECT CASE WHEN state='VERIFIED' AND expires_at<=now() THEN 'EXPIRED' ELSE state END AS state,expires_at FROM school_verifications WHERE user_id=$1 ORDER BY (state='VERIFIED' AND expires_at>now()) DESC,created_at DESC,id DESC LIMIT 1`,
       [c.user.id],
     );
     return {

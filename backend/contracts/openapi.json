@@ -6332,6 +6332,192 @@
         }
       }
     },
+    "/projects/{id}/my-review": {
+      "get": {
+        "operationId": "get__projects__id_my_review",
+        "summary": "/projects/:id/my-review",
+        "description": "Access: member. Mutations require a session-bound CSRF token and trusted Origin.",
+        "x-access": "member",
+        "security": [
+          {
+            "session": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success; JSON envelope except OpenAPI, OAuth redirect, media binary and SSE",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Envelope"
+                }
+              }
+            }
+          },
+          "202": {
+            "description": "Upload accepted for scanning"
+          },
+          "204": {
+            "description": "Successful deletion or logout"
+          },
+          "302": {
+            "description": "OAuth redirect"
+          },
+          "400": {
+            "description": "Invalid query or identifier"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Permission denied"
+          },
+          "404": {
+            "description": "Not found or not visible"
+          },
+          "409": {
+            "description": "State/version conflict"
+          },
+          "413": {
+            "description": "Upload limit exceeded"
+          },
+          "422": {
+            "description": "Validation error"
+          },
+          "429": {
+            "description": "Rate limit"
+          },
+          "503": {
+            "description": "External provider unavailable or unconfigured"
+          }
+        }
+      }
+    },
+    "/me/reviews/{id}": {
+      "patch": {
+        "operationId": "patch__me_reviews__id",
+        "summary": "/me/reviews/:id",
+        "description": "Access: member. Mutations require a session-bound CSRF token and trusted Origin.",
+        "x-access": "member",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "visibility": {
+                    "type": "string",
+                    "enum": [
+                      "PUBLIC",
+                      "PRIVATE"
+                    ]
+                  },
+                  "homeFeaturedOptIn": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "visibility",
+                  "homeFeaturedOptIn"
+                ],
+                "additionalProperties": false,
+                "$schema": "http://json-schema.org/draft-07/schema#"
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success; JSON envelope except OpenAPI, OAuth redirect, media binary and SSE",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Envelope"
+                }
+              }
+            }
+          },
+          "202": {
+            "description": "Upload accepted for scanning"
+          },
+          "204": {
+            "description": "Successful deletion or logout"
+          },
+          "302": {
+            "description": "OAuth redirect"
+          },
+          "400": {
+            "description": "Invalid query or identifier"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Permission denied"
+          },
+          "404": {
+            "description": "Not found or not visible"
+          },
+          "409": {
+            "description": "State/version conflict"
+          },
+          "413": {
+            "description": "Upload limit exceeded"
+          },
+          "422": {
+            "description": "Validation error"
+          },
+          "429": {
+            "description": "Rate limit"
+          },
+          "503": {
+            "description": "External provider unavailable or unconfigured"
+          }
+        }
+      }
+    },
     "/workrooms/{id}": {
       "get": {
         "operationId": "get__workrooms__id",
@@ -8640,6 +8826,10 @@
                     "type": "string",
                     "minLength": 1,
                     "maxLength": 2000
+                  },
+                  "homeFeaturedOptIn": {
+                    "type": "boolean",
+                    "default": false
                   }
                 },
                 "required": [
@@ -8690,6 +8880,169 @@
               "type": "string",
               "minLength": 8,
               "maxLength": 128
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success; JSON envelope except OpenAPI, OAuth redirect, media binary and SSE",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Envelope"
+                }
+              }
+            }
+          },
+          "202": {
+            "description": "Upload accepted for scanning"
+          },
+          "204": {
+            "description": "Successful deletion or logout"
+          },
+          "302": {
+            "description": "OAuth redirect"
+          },
+          "400": {
+            "description": "Invalid query or identifier"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Permission denied"
+          },
+          "404": {
+            "description": "Not found or not visible"
+          },
+          "409": {
+            "description": "State/version conflict"
+          },
+          "413": {
+            "description": "Upload limit exceeded"
+          },
+          "422": {
+            "description": "Validation error"
+          },
+          "429": {
+            "description": "Rate limit"
+          },
+          "503": {
+            "description": "External provider unavailable or unconfigured"
+          }
+        }
+      }
+    },
+    "/me/notification-preferences": {
+      "get": {
+        "operationId": "get__me_notification_preferences",
+        "summary": "/me/notification-preferences",
+        "description": "Access: member. Mutations require a session-bound CSRF token and trusted Origin.",
+        "x-access": "member",
+        "security": [
+          {
+            "session": []
+          }
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Success; JSON envelope except OpenAPI, OAuth redirect, media binary and SSE",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Envelope"
+                }
+              }
+            }
+          },
+          "202": {
+            "description": "Upload accepted for scanning"
+          },
+          "204": {
+            "description": "Successful deletion or logout"
+          },
+          "302": {
+            "description": "OAuth redirect"
+          },
+          "400": {
+            "description": "Invalid query or identifier"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Permission denied"
+          },
+          "404": {
+            "description": "Not found or not visible"
+          },
+          "409": {
+            "description": "State/version conflict"
+          },
+          "413": {
+            "description": "Upload limit exceeded"
+          },
+          "422": {
+            "description": "Validation error"
+          },
+          "429": {
+            "description": "Rate limit"
+          },
+          "503": {
+            "description": "External provider unavailable or unconfigured"
+          }
+        }
+      },
+      "put": {
+        "operationId": "put__me_notification_preferences",
+        "summary": "/me/notification-preferences",
+        "description": "Access: member. Mutations require a session-bound CSRF token and trusted Origin.",
+        "x-access": "member",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "messages": {
+                    "type": "boolean"
+                  },
+                  "matching": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "messages",
+                  "matching"
+                ],
+                "additionalProperties": false,
+                "$schema": "http://json-schema.org/draft-07/schema#"
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
             }
           }
         ],
@@ -13090,6 +13443,64 @@
             }
           }
         ],
+        "responses": {
+          "200": {
+            "description": "Success; JSON envelope except OpenAPI, OAuth redirect, media binary and SSE",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Envelope"
+                }
+              }
+            }
+          },
+          "202": {
+            "description": "Upload accepted for scanning"
+          },
+          "204": {
+            "description": "Successful deletion or logout"
+          },
+          "302": {
+            "description": "OAuth redirect"
+          },
+          "400": {
+            "description": "Invalid query or identifier"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Permission denied"
+          },
+          "404": {
+            "description": "Not found or not visible"
+          },
+          "409": {
+            "description": "State/version conflict"
+          },
+          "413": {
+            "description": "Upload limit exceeded"
+          },
+          "422": {
+            "description": "Validation error"
+          },
+          "429": {
+            "description": "Rate limit"
+          },
+          "503": {
+            "description": "External provider unavailable or unconfigured"
+          }
+        }
+      }
+    },
+    "/public-config": {
+      "get": {
+        "operationId": "get__public_config",
+        "summary": "/public-config",
+        "description": "Access: public. Mutations require a session-bound CSRF token and trusted Origin.",
+        "x-access": "public",
+        "security": [],
+        "parameters": [],
         "responses": {
           "200": {
             "description": "Success; JSON envelope except OpenAPI, OAuth redirect, media binary and SSE",

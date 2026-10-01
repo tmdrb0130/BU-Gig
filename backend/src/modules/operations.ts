@@ -13,6 +13,31 @@ import {
 import { audit, emit, project, member } from "../policy";
 import { cancelTrade } from "./trade";
 export function operations(h: Http) {
+  h.add(
+    "get",
+    "/me/notification-preferences",
+    "member",
+    undefined,
+    async (c) =>
+      (await one(
+        c.q,
+        "SELECT messages,matching FROM notification_preferences WHERE user_id=$1",
+        [c.user.id],
+      )) || { messages: true, matching: true },
+  );
+  h.add(
+    "put",
+    "/me/notification-preferences",
+    "member",
+    z.object({ messages: z.boolean(), matching: z.boolean() }).strict(),
+    async (c) => {
+      await c.q.query(
+        "INSERT INTO notification_preferences(user_id,messages,matching) VALUES($1,$2,$3) ON CONFLICT(user_id) DO UPDATE SET messages=$2,matching=$3",
+        [c.user.id, c.body.messages, c.body.matching],
+      );
+      return c.body;
+    },
+  );
   h.add("get", "/me/school-verifications", "member", undefined, async (c) => ({
     data: (
       await c.q.query(
